@@ -1,0 +1,21 @@
+The different roles of the subwindows are as follows:
+
+Top left subwindow: gives a more detailed variant of the
+git log output and shows the different commits that have been
+pushed. Contains information for the location of HEAD and
+the master branch, and also how different commits merge together
+
+Top center subwindow: shows the user that made the commit
+and his or her email address
+
+Top right subwindow: provides the timestamp of the selected commit
+
+In the center there are smaller subwindows that give information
+about the hash of the commit, and the feature to search for specific
+lines in a commit
+
+Bottom left subwindow: shows in diff format the changes that have
+been made in the commit selected
+
+Bottom right subwindow: provides Comments and a list of the 
+files that have been altered by the commit selected

@@ -1,0 +1,157 @@
+
+
+2to3-2.7
+
+	not a dynamic executable
+
+busctl
+
+	linux-vdso.so.1 =>  (0x00007fff1b733000)
+	libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007fe45d3dc000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fe45d1d4000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fe45cfb6000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fe45cbed000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000555c99909000)
+	libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007fe45c97d000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fe45c778000)
+
+deb-systemd-helper
+
+	not a dynamic executable
+
+fakeroot-sysv
+
+	not a dynamic executable
+
+gettextize
+
+	not a dynamic executable
+
+gstreamer-codec-install
+
+	not a dynamic executable
+
+intel_audio_dump
+
+	linux-vdso.so.1 =>  (0x00007ffd88687000)
+	libdrm_intel.so.1 => /usr/lib/x86_64-linux-gnu/libdrm_intel.so.1 (0x00007ff60575e000)
+	libdrm.so.2 => /usr/lib/x86_64-linux-gnu/libdrm.so.2 (0x00007ff60554f000)
+	libpciaccess.so.0 => /usr/lib/x86_64-linux-gnu/libpciaccess.so.0 (0x00007ff605344000)
+	libunwind.so.8 => /usr/lib/x86_64-linux-gnu/libunwind.so.8 (0x00007ff605129000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007ff604f0c000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff604b42000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ff604839000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007ff60461f000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055a02ced2000)
+	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007ff6043fc000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007ff6041f8000)
+
+locate
+
+	linux-vdso.so.1 =>  (0x00007ffe1fdc2000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7b8afaf000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055ca720ed000)
+
+mokutil
+
+	linux-vdso.so.1 =>  (0x00007ffc29afd000)
+	libcrypto.so.1.0.0 => /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 (0x00007fe9e7cd6000)
+	libefivar.so.0 => /usr/lib/x86_64-linux-gnu/libefivar.so.0 (0x00007fe9e7abd000)
+	libcrypt.so.1 => /lib/x86_64-linux-gnu/libcrypt.so.1 (0x00007fe9e7884000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fe9e74bb000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fe9e72b7000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055eb967df000)
+
+pamon
+
+	linux-vdso.so.1 =>  (0x00007ffca7066000)
+	libpulse.so.0 => /usr/lib/x86_64-linux-gnu/libpulse.so.0 (0x00007fb0afa90000)
+	libpulsecommon-8.0.so => /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-8.0.so (0x00007fb0af816000)
+	libsndfile.so.1 => /usr/lib/x86_64-linux-gnu/libsndfile.so.1 (0x00007fb0af5ac000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x00007fb0af3a6000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fb0af189000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fb0aef80000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fb0aed7c000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fb0aea73000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fb0ae6a9000)
+	libjson-c.so.2 => /lib/x86_64-linux-gnu/libjson-c.so.2 (0x00007fb0ae49e000)
+	libdbus-1.so.3 => /lib/x86_64-linux-gnu/libdbus-1.so.3 (0x00007fb0ae252000)
+	libxcb.so.1 => /usr/lib/x86_64-linux-gnu/libxcb.so.1 (0x00007fb0ae02f000)
+	libsystemd.so.0 => /lib/x86_64-linux-gnu/libsystemd.so.0 (0x00007fb0adfaa000)
+	libwrap.so.0 => /lib/x86_64-linux-gnu/libwrap.so.0 (0x00007fb0adda0000)
+	libasyncns.so.0 => /usr/lib/x86_64-linux-gnu/libasyncns.so.0 (0x00007fb0adb99000)
+	libFLAC.so.8 => /usr/lib/x86_64-linux-gnu/libFLAC.so.8 (0x00007fb0ad924000)
+	libvorbisenc.so.2 => /usr/lib/x86_64-linux-gnu/libvorbisenc.so.2 (0x00007fb0ad67b000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055ad0842a000)
+	libXau.so.6 => /usr/lib/x86_64-linux-gnu/libXau.so.6 (0x00007fb0ad476000)
+	libXdmcp.so.6 => /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007fb0ad270000)
+	libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007fb0ad04d000)
+	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007fb0ace2b000)
+	libgcrypt.so.20 => /lib/x86_64-linux-gnu/libgcrypt.so.20 (0x00007fb0acb4a000)
+	libnsl.so.1 => /lib/x86_64-linux-gnu/libnsl.so.1 (0x00007fb0ac930000)
+	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007fb0ac715000)
+	libogg.so.0 => /usr/lib/x86_64-linux-gnu/libogg.so.0 (0x00007fb0ac50c000)
+	libvorbis.so.0 => /usr/lib/x86_64-linux-gnu/libvorbis.so.0 (0x00007fb0ac2df000)
+	libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007fb0ac06f000)
+	libgpg-error.so.0 => /lib/x86_64-linux-gnu/libgpg-error.so.0 (0x00007fb0abe5b000)
+
+pi1toppm
+
+	linux-vdso.so.1 =>  (0x00007ffcbafe1000)
+	libnetpbm.so.10 => /usr/lib/libnetpbm.so.10 (0x00007f0cb5c52000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f0cb5889000)
+	/lib64/ld-linux-x86-64.so.2 (0x00005651e1043000)
+
+ppmchange
+
+	linux-vdso.so.1 =>  (0x00007ffdb6fe5000)
+	libnetpbm.so.10 => /usr/lib/libnetpbm.so.10 (0x00007fddc9075000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fddc8cac000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055b9abf4b000)
+
+pydoc
+
+	not a dynamic executable
+
+scp-dbus-service
+
+	not a dynamic executable
+
+syslinux
+
+	linux-vdso.so.1 =>  (0x00007fff26fad000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f160b62a000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055aff6d02000)
+
+unzip
+
+	linux-vdso.so.1 =>  (0x00007ffe67d8e000)
+	libbz2.so.1.0 => /lib/x86_64-linux-gnu/libbz2.so.1.0 (0x00007fba0787f000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fba074b6000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055b8c1c3f000)
+
+xbiff
+
+	linux-vdso.so.1 =>  (0x00007ffde39ee000)
+	libXaw.so.7 => /usr/lib/x86_64-linux-gnu/libXaw.so.7 (0x00007f56d1510000)
+	libXmu.so.6 => /usr/lib/x86_64-linux-gnu/libXmu.so.6 (0x00007f56d12f7000)
+	libXt.so.6 => /usr/lib/x86_64-linux-gnu/libXt.so.6 (0x00007f56d108d000)
+	libXext.so.6 => /usr/lib/x86_64-linux-gnu/libXext.so.6 (0x00007f56d0e7b000)
+	libX11.so.6 => /usr/lib/x86_64-linux-gnu/libX11.so.6 (0x00007f56d0b41000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f56d0777000)
+	libXpm.so.4 => /usr/lib/x86_64-linux-gnu/libXpm.so.4 (0x00007f56d0566000)
+	libSM.so.6 => /usr/lib/x86_64-linux-gnu/libSM.so.6 (0x00007f56d035e000)
+	libICE.so.6 => /usr/lib/x86_64-linux-gnu/libICE.so.6 (0x00007f56d0143000)
+	libxcb.so.1 => /usr/lib/x86_64-linux-gnu/libxcb.so.1 (0x00007f56cff21000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f56cfd1d000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000555e8b778000)
+	libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f56cfb17000)
+	libXau.so.6 => /usr/lib/x86_64-linux-gnu/libXau.so.6 (0x00007f56cf913000)
+	libXdmcp.so.6 => /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007f56cf70d000)
+
+yuvtoppm
+
+	linux-vdso.so.1 =>  (0x00007ffd003f8000)
+	libnetpbm.so.10 => /usr/lib/libnetpbm.so.10 (0x00007f37218f2000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3721529000)
+	/lib64/ld-linux-x86-64.so.2 (0x000055e6635aa000)

@@ -1,0 +1,168 @@
+1. I use wget in order to download Coreutils 7.6
+wget https://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz
+
+2. I unzip and extract the file
+tar -xzvf coreutils-7.6.tar.gz
+
+3. I make a new directory
+mkdir coreutilsInstall
+
+4. I install the program using 
+./configure prefix=~/coreutilsInstall	
+make
+
+The output
+make  all-recursive
+make[1]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6'
+Making all in lib
+make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/lib'
+  GEN    configmake.h
+make  all-recursive
+...
+make  all-am
+make[3]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+  CC     version.o
+  AR     libver.a
+  CC     uname.o
+  CCLD   uname
+  CC     chroot.o
+  CCLD   chroot
+  CC     hostid.o
+  ...
+
+Observations about make:
+I notice that all the directories within coreutils-7.6 are recursively
+entered and left, and all the executable files that should be made
+are created after entering src where all the source code files are.
+The CC and CCLD stands for compiling C programs, AR stands 
+archive-maintaining program.
+
+make install
+The prefix is used to install in a separate directory
+rather than the system directory
+
+5. I get a new folder 'coreutilsInstall'
+and I move into that directory
+cd coreutilsInstall
+
+6. I find ls in /bin and I run it
+./ls -l 
+
+I get this output:
+total 29488
+-rwxr-xr-x 1 nyan csugrad 127218 2016-10-10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 2016-10-10 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 2016-10-10 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 2016-10-10 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 2016-10-10 14:45 chcon
+which is a buggy output of ls
+
+7. I also remember to check my locale:
+LANG=en_US.UTF-8
+LC_CTYPE="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_COLLATE="en_US.UTF-8"
+...
+I find I am on the right locale
+
+8. I create the patch called 'changes'
+touch changes
+emacs changes
+I paste in Brady's patch, save and exit
+
+9. I move the patch to ~/coreutils-7.6/src
+and run the patch
+mv changes ~/coreutils-7.6/src
+patch -p2 <changes
+
+I get this output:
+patching file ls.c
+Hunk #1 succeeded at 2013 (offset -1 lines).
+Hunk #2 succeeded at 2029 with fuzz 1 (offset -1 lines).
+
+10. I remake at the top level of my source tree
+cd ..
+make
+and get:
+
+make  all-recursive
+make[1]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6'
+Making all in lib
+make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/lib
+...
+make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+make  all-am
+make[3]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+  CC     ls.o
+  CCLD   dir
+  CCLD   vdir
+  CCLD   ls
+make[3]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+make[2]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+Making all in doc
+...
+make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/man'
+  GEN    dir.1
+  GEN    vdir.1
+  GEN    ls.1
+make[2]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/man'
+...
+
+Observations of the second make:
+I find that this make runs gcc on only the few files that are changed, ls 
+and dir. This includes much fewer commands than the first make because 
+only ls.c was actually patched. For dir, I check the man page of dir
+to find that it lists directory contents, which potentially imports
+ls in order to work. The remainder of the output mostly shows a 
+recursive entering and leaving of all the directories inside coreutils-7.6.
+
+Differences:
+The second make was much shorter because only ls.c was changed through 
+the patch, and consequently only ls and the executables that imported 
+ls had to be recompiled as well.
+
+11. I test if the patch now works
+cd src
+./ls -l    # directory: ~/coreutils-7.6/src
+
+I get this output:
+total 29488
+-rwxr-xr-x 1 nyan csugrad 127218 Oct 10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 Oct 10 14:45 base64
+-rw-r--r-- 1 nyan csugrad   8422 Sep  1  2009 base64.c
+-rw-r--r-- 1 nyan csugrad  38168 Oct 10 14:45 base64.o
+-rwxr-xr-x 1 nyan csugrad  88592 Oct 10 14:45 basename
+-rw-r--r-- 1 nyan csugrad   3787 Sep  1  2009 basename.c
+-rw-r--r-- 1 nyan csugrad  18088 Oct 10 14:45 basename.o
+-rw-r--r-- 1 nyan csugrad   5290 Sep  1  2009 c99-to-c89.diff
+-rwxr-xr-x 1 nyan csugrad 201758 Oct 10 14:45 cat
+-rw-r--r-- 1 nyan csugrad  22679 Sep  1  2009 cat.c
+-rw-r--r-- 1 nyan csugrad  63144 Oct 10 14:45 cat.o
+-rw-r--r-- 1 nyan csugrad    962 Oct 10 15:46 changes
+-rw-r--r-- 1 nyan csugrad    961 Oct 10 15:33 changes~
+-rwxr-xr-x 1 nyan csugrad 237435 Oct 10 14:45 chcon
+-rw-r--r-- 1 nyan csugrad  15766 Sep 10  2009 chcon.c
+
+Testing with recent and old files
+Fixed ls executable:
+
+touch -t 1401010000 oldfile
+touch newfile
+./ls -l    # directory: ~/coreutils-7.6/src
+-rw-r--r-- 1 nyan csugrad      0 Oct 10 23:25 newfile
+...
+-rw-r--r-- 1 nyan csugrad      0 Jan  1  2014 oldfile
+
+Buggy ls executable:
+touch -t 1401010000 oldfile
+touch newfile
+./ls -l    # directory: ~/coreUtilsInstall/bin
+-rw-r--r-- 1 nyan csugrad      0 2016-10-10 23:28 newfile
+...
+-rw-r--r-- 1 nyan csugrad      0 2014-01-01 00:00 oldfile
+
+Differences: With the fixed ls file the hour and min
+of the file is not visibly evident whereas it is for
+the buggy ls file.
+

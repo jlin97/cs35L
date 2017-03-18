@@ -1,0 +1,162 @@
+lab5
+
+I first downloaded the buggy coreutils
+wget http://web.cs.ucla.edu/classes/fall16/cs35L/assign/coreutils-with-bug.tar.gz
+
+I extract
+tar -xzvf coreutils-with-bug.tar.gz
+
+cd coreutils-with-bug
+./configure
+make 2> make-error.txt
+                                           
+In file included from utimecmp.c:41:0:                                          
+utimens.h:2:5: error: conflicting types for 'futimens'                          
+ int futimens (int, char const *, struct timespec const [2]);                   
+     ^                                                                          
+In file included from utimecmp.h:25:0,                                          
+                 from utimecmp.c:25:                                            
+/usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was he\
+re                                                                              
+ extern int futimens (int __fd, const struct timespec __times[2]) __THROW;      
+            ^                                                                   
+make[3]: *** [utimecmp.o] Error 1                                               
+make[2]: *** [all] Error 2                                                      
+make[1]: *** [all-recursive] Error 1                                            
+make: *** [all] Error 2                                                         
+                               
+There is an error of conflicting types for the function 'futimens'
+
+I download the patch
+wget http://web.cs.ucla.edu/classes/fall16/cs35L/assign/coreutils.diff
+
+patch -p0 <coreutils.diff
+patching file lib/utimens.c
+patching file lib/utimens.h
+patching file src/copy.c
+patching file src/tee.c
+patching file src/touch.c
+
+./configure CFLAGS='-g -O0'
+make
+make check
+
+The executable is made successfully. Examining the patch, I see changes
+are made to rename one of the futimens functions to coreutils_futiments
+and tee to coreutils_tee.
+
+$ tmp=$(mktemp -d)
+$ cd $tmp
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+TZ=UTC0 ~/CS35L/lab5/corewbug/src/./ls -lt --full-time wwi-armistice now now1
+
+Reproducing the bug:
+-rw-r--r-- 1 nyan csugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 nyan csugrad 0 2016-10-24 22:32:25.117792201 +0000 now1
+-rw-r--r-- 1 nyan csugrad 0 2016-10-24 22:32:18.908627460 +0000 now
+
+I run gdb on the file:
+gdb ~/CS35L/lab5/corewbug/src/./ls
+(gdb) run -lt wwi-armistice now now1
+
+(gdb) set logging on
+info functions
+
+I record the list of functions used in ./ls in a text file.
+I then use emacs to view ls.c, and search for case 't',
+to check if there may be a switch case with a list of options
+
+I find:
+case 't':                                                               
+    sort_type = sort_time;                                                
+    sort_type_specified = true;                                           
+    break;  
+
+Studying the ls.c file, I find sort_type to be of type enum.
+In case 't', sort_type becomes sort_time, then searching
+the ls.c file for sort_time I find sort_time is used in sort_files().
+
+In sort_files(), there are three cases for case sort_time:,
+ctime, mtime and atime. 
+
+I test ./ls -c and ./ls -u to see if the bug is present
+when sorting with creation or access times and find
+the bug is present only when sorting with last modified times.
+
+Therefore:
+case time_mtime:                                                    
+    func = sort_reverse ? rev_cmp_mtime : compare_mtime;              
+    break;   
+
+sort_reverse is set to false on default so I examine compare_mtime in gdb
+
+gdb ~/CS35L/lab5/corewbug/src/./ls
+(gdb) break compare_mtime
+(gdb) run -lt
+
+By stepping I find that compare_mtime returns cmp_mtime (a, b, xstrcoll).
+
+I re-run gdb and break on cmp_mtime.
+(gdb) list
+2877	cmp_mtime (struct fileinfo const *a, struct fileinfo const *b,
+2878		   int (*cmp) (char const *, char const *))
+2879	{
+2880	  int diff = timespec_cmp (get_stat_mtime (&b->stat),
+2881				   get_stat_mtime (&a->stat));
+2882	  return diff ? diff : cmp (a->name, b->name);
+2883	}
+
+I find that cmp_mtime calls timespec_cmp so I set a breakpoint on the function
+Breakpoint 4, timespec_cmp (a=..., b=...) at ../lib/timespec.h:49
+
+Noticing that the function is run from timespec.h, I run emacs on timespec.h
+and see the comment.
+/* Return negative, zero, positive if A < B, A == B, A > B, respectively.       
+   Assume the nanosecond components are in range, or close to it.  */ 
+static inline int                                                               
+timespec_cmp (struct timespec a, struct timespec b)                             
+{                                                                               
+  int diff = a.tv_sec - b.tv_sec;                                               
+  return diff ? diff : a.tv_nsec - b.tv_nsec;                                   
+}                                                                               
+                             
+I switch back to my gdb window, and step into the cmp_mtime function
+(gdb) watch diff
+(gdb) print a.tv_sec
+(gdb) print b.tv_sec
+
+I find that the problem is that the subtraction is causing integer overflow,
+which is causing incorrect values of diff to be returned.
+
+I fix the code by using if statements to compare and
+return positive/negative/0 values of diff based on conditionals.
+
+I reconfigure and make and running (gdb) run -lt, my output is:
+-rw-r--r-- 1 nyan csugrad 0 2016-10-24 20:48 now1
+-rw-r--r-- 1 nyan csugrad 0 2016-10-24 20:48 now
+-rw-r--r-- 1 nyan csugrad 0 1918-11-11 03:00 wwi-armistice
+
+The bug has been fixed.
+
+Reproducing the problem in my home directory on SEASnet servers,
+./ls -lt
+I get the output:
+total 12560
+-rw-r--r-- 1 nyan csugrad      0 2054-12-17 09:28 wwi-armistice
+-rwxr-xr-x 1 nyan csugrad  55173 2016-10-25 00:20 su
+-rw-r--r-- 1 nyan csugrad  22376 2016-10-25 00:20 su.o
+-rwxr-xr-x 1 nyan csugrad  46885 2016-10-25 00:20 setuidgid
+-rw-r--r-- 1 nyan csugrad  12088 2016-10-25 00:20 setuidgid.o
+-rwxr-xr-x 1 nyan csugrad  93200 2016-10-25 00:20 df
+-rw-r--r-- 1 nyan csugrad  39608 2016-10-25 00:20 df.o
+
+The local file system uses signed 32-bit time stamps while the tmp folder
+runs on a SEASnet NFS filesystem which uses unsigned 32-bit time stamps.
+The file wwi-armistice when made is a very large negative int, and thus,
+the sign bit is a 1. Opening the file in the NFS filesystem, the time 
+stamp is seen to be an unsigned int and this makes the time stamp
+have a very large positive value. Therefore, the file is shown as though
+it is from a future date.

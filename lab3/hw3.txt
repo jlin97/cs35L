@@ -1,0 +1,164 @@
+Q1. Why did Brady's patch remove the line "case_long_iso_time_
+style:"? Was it necessary to remove that line? Explain.
+
+mv ls.c ls_new.c    # rename patched file
+mv ls.c.orig ls.c    # restore buggy source code
+cp changes changes2    # create new patch file
+emacs changes2      # I remove the removal of the "case_long..." file
+cd ..
+make
+cd src
+./ls -l
+
+First lines of output:
+total 29648
+-rwxr-xr-x 1 nyan csugrad 127218 Oct 10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 Oct 10 14:45 base64
+-rw-r--r-- 1 nyan csugrad   8422 Sep  1  2009 base64.c
+-rw-r--r-- 1 nyan csugrad  38168 Oct 10 14:45 base64.o
+-rwxr-xr-x 1 nyan csugrad  88592 Oct 10 14:45 basename
+-rw-r--r-- 1 nyan csugrad   3787 Sep  1  2009 basename.c
+-rw-r--r-- 1 nyan csugrad  18088 Oct 10 14:45 basename.o
+-rw-r--r-- 1 nyan csugrad   5290 Sep  1  2009 c99-to-c89.diff
+-rwxr-xr-x 1 nyan csugrad 201758 Oct 10 14:45 cat
+-rw-r--r-- 1 nyan csugrad  22679 Sep  1  2009 cat.c
+-rw-r--r-- 1 nyan csugrad  63144 Oct 10 14:45 cat.o
+-rw-r--r-- 1 nyan csugrad    962 Oct 11 00:10 changes
+
+The patch still works without removing that line. This is because
+the removal was not to fix the bug but to clean up messy code. It
+was removing a duplicate line of code.
+
+Q2. If your company adopts this patched version of Coreutils
+instead of the default one, what else should you watch out 
+for? Might this new version of Coreutils introduce other problems 
+with your application, perhaps in countries where users don't 
+speak English and don't understand English-format dates?
+
+To test this, I change the locale to one with language French.
+export LC_ALL=fr_FR.UTF-8
+
+When testing with the patched ls file:
+./ls -l      # in directory ~/coreutils-7.6/src
+I get the output:
+total 29648
+-rwxr-xr-x 1 nyan csugrad 127218 oct.  10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 oct.  10 14:45 base64
+-rw-r--r-- 1 nyan csugrad   8422 sept.  1  2009 base64.c
+-rw-r--r-- 1 nyan csugrad  38168 oct.  10 14:45 base64.o
+-rwxr-xr-x 1 nyan csugrad  88592 oct.  10 14:45 basename
+-rw-r--r-- 1 nyan csugrad   3787 sept.  1  2009 basename.c
+-rw-r--r-- 1 nyan csugrad  18088 oct.  10 14:45 basename.o
+-rw-r--r-- 1 nyan csugrad   5290 sept.  1  2009 c99-to-c89.diff
+-rwxr-xr-x 1 nyan csugrad 201758 oct.  10 14:45 cat
+-rw-r--r-- 1 nyan csugrad  22679 sept.  1  2009 cat.c
+-rw-r--r-- 1 nyan csugrad  63144 oct.  10 14:45 cat.o
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:10 changes
+-rw-r--r-- 1 nyan csugrad    963 oct.  11 00:09 #changes#
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:09 changes~
+-rw-r--r-- 1 nyan csugrad    707 oct.  11 00:11 changes2
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:10 changes2~
+
+When testing with the buggy ls file:
+./ls -l      # in directory ~/coreutilsInstall/bin
+
+total 19208
+-rwxr-xr-x 1 nyan csugrad 127218 oct.  10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 oct.  10 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 oct.  10 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 oct.  10 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 oct.  10 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 oct.  10 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 oct.  10 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 oct.  10 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 oct.  10 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 oct.  10 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 oct.  10 14:45 comm
+
+And testing in a German locale:
+export LC_ALL=de_DE.UTF-8
+insgesamt 19208
+-rwxr-xr-x 1 nyan csugrad 127218 10. Okt 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 10. Okt 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 10. Okt 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 10. Okt 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 10. Okt 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 10. Okt 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 10. Okt 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 10. Okt 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 10. Okt 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 10. Okt 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 10. Okt 14:45 comm
+
+I find that the bug only exists in the English (US)
+locale. Reverting back,
+export LC_ALL=en_US.UTF-8
+./ls -l      # in directory ~/coreutilsInstall/bin
+
+total 19208
+-rwxr-xr-x 1 nyan csugrad 127218 2016-10-10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 2016-10-10 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 2016-10-10 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 2016-10-10 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 2016-10-10 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 2016-10-10 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 2016-10-10 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 2016-10-10 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 2016-10-10 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 2016-10-10 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 2016-10-10 14:45 comm
+
+I find the bug reappears again. I find that by applying
+this patch, this format will stick no matter the locale,
+which may be a problem if other locales have other
+distinct initial formats. Thus, even if other countries
+don't understand English-format dates, using the ls
+from the patched file will give them the fixed format
+of the patched ls meant for the English locale.
+
+Q3. What happens when this script is invoked on an empty 
+file like /dev/null, and why?
+
+When invoked on an empty file,
+Traceback (most recent call last):
+  File "./randline.py", line 70, in <module>
+    main()
+  File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/lib64/python2.7/random.py", line 274, in choice
+    return seq[int(self.random() * len(seq))]  
+    # raises IndexError if seq is empty
+IndexError: list index out of range
+
+This error pops up because the function calls lead to 
+an index error that is caused because seq which is supposed
+to print a sequence of numbers is empty. Thus, when
+the script is invoked on an empty file the command does not
+execute successfully.
+
+Q4. What happens when this script is invoked with Python 3 
+rather than Python 2, and why? (You can run Python 3 on the 
+SEASnet hosts by using the command python3 instead of python.)
+
+By running Python 3, 
+alias python3='/usr/local/cs/bin/python3'
+python3 randline.py lsoutput.txt
+  File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+There is an error running this script because the code 
+relies on the fact that in older versions of Python, 
+it is possible to assign a variable or a tuple of
+variables on the left to a variable or tuple on the right.
+Referred to as tuple unpacking, this process allows for
+powerful assigning features but in Python 3 this rule 
+has been removed and therefore the interpreter no 
+longer supports mulitple tuple unpacking in the same
+syntax.
+A possible fix would be:
+except IOError as e:
+       erno, strerror = e.args

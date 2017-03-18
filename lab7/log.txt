@@ -1,0 +1,56 @@
+Lab 7
+
+Running: 
+./sort --version
+sort (GNU coreutils) 8.25
+Copyright (C) 2016 Free Software Foundation, Inc.
+
+I read the man page of od and then used:
+od -A n -t f8 -N 80000000 /dev/urandom | 
+tr ' ' '\n' | 
+sed '/^$/d' > ~/CS35L/lab7/randomfloats.txt
+
+Measuring the duration:
+time -p ./sort -g < ~/CS35L/lab7/randomfloats.txt > /dev/null
+
+real 35.05
+user 194.92
+sys 0.56
+
+I found that without expliciting declaring the number of threads,
+the process was automatically multithreadded, and thus the real time
+was significantly lower than the user+sys time, 195.48 seconds, which 
+would be the amount of time the process takes to complete without
+any parallelism. User+sys time is the total time spent in user-mode 
+code outside the kernel and in the kernel within the process.
+
+I used ./sort --help to understand how the parallel option worked
+
+time -p ./sort -g --parallel=1 < ~/CS35L/lab7/randomfloats.txt > /dev/null
+real 191.85
+user 191.60
+sys 0.24
+
+time -p ./sort -g --parallel=2 < ~/CS35L/lab7/randomfloats.txt > /dev/null
+real 100.40
+user 192.12
+sys 0.35
+
+time -p ./sort -g --parallel=4 < ~/CS35L/lab7/randomfloats.txt > /dev/null
+real 56.72
+user 195.10
+sys 0.44
+
+time -p ./sort -g --parallel=8 < ~/CS35L/lab7/randomfloats.txt > /dev/null
+real 35.68
+user 198.97
+sys 0.48
+
+From these results, I found that doubling the number of threads approximately
+reduced the real time by half until a specific limit of threads after which 
+the time taken fluctuate around a small range around 24-25 seconds in real time.
+It was also noticable that as the number of threads rose the user time rose
+by increasing increments. I believe this is due to the fact that this is due
+to the overhead of creating new threads for the process.
+
+

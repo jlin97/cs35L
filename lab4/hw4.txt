@@ -1,0 +1,62 @@
+I make the direcotry
+gitmkdir hw4
+cd hw4
+
+I clone and checkout v3.0
+git clone ~eggert/src/gnu/diffutils
+cd diffutils
+git checkout v3.0
+git branch quote
+git checkout quote
+
+I patch
+patch -p1 <quote-3.0-patch.txt
+patching file src/cmp.c
+patching file src/diff.c
+patching file src/diff3.c
+patching file src/dir.c
+patching file src/sdiff.c
+patching file src/util.c
+
+I edit the Changelog entry
+emacs quote-3.0-patch.txt
+C-x 4 a
+"changed cmp.c diff.c diff3.c dir.c sdiff.c util.c by replacing backticks with apostrophes"
+git add src/cmp.c src/diff.c src/diff3.c src/dir.c src/sdiff.c src/util.c
+git commit -m "changed cmp.c diff.c diff3.c dir.c sdiff.c 
+util.c by replacing backticks with apostrophes"
+
+I create a new patch
+git format-patch -1 --stdout > formatted-patch.txt
+
+Testing out my partner's patch:
+Name: Prateek Singh, UID: 304-581-475 
+
+git checkout v3.0
+git branch partner
+git am < ptak_formatted-patch.txt
+export PATH=/usr/local/cs/bin:$PATH
+./bootstrap
+./configure
+make
+make check
+cd src
+I test the files
+
+./diff . -
+./diff: cannot compare '-' to a directory
+./diff --help
+Sample output: FILES are 'FILE1 FILE2' or 'DIR1 DIR2' 
+or 'DIR FILE...' or 'FILE... DIR'.
+
+The patch works as expected
+
+git checkout quote
+./bootstrap
+./configure
+make distdir
+cd diffutils-3.0.1-02ea
+emacs Changelog
+
+There I found the Changelog was updated to include my commit and
+my message entry

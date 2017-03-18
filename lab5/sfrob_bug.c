@@ -1,0 +1,158 @@
+#include "stdio.h"
+#include "stdlib.h"
+
+int frobcmp (const char *a, const char *b);
+int decode_and_cmp (const char *a, const char *b);
+int wrapper (const void *a, const void *b);
+void check_word_mem_error(char *ptr);
+void check_list_mem_error(char **ptr, int list_counter);
+
+//returns an int result that is negative, zero, or positive depending 
+//on whether a is less than, equal to, or greater than b.
+int frobcmp (const char *a, const char *b){
+	int result;	
+	if(*a == ' ' && *b == ' ')
+		return 0;
+	while(*a != ' ' || *b != ' '){	
+		if(*a == ' '){
+			return -1;
+		}
+		else if(*b == ' '){
+			return 1;
+		}
+		result = decode_and_cmp(a, b);
+		if(result != 0){
+			return result;
+		}
+		a++;
+		b++;
+	}
+	return 0;
+}
+
+int decode_and_cmp (const char *a, const char *b){
+	char first = *a^42;
+	//printf("%s, %c", "\n", first);
+	char second = *b^42;
+	//printf("%s, %c", "\n", second);
+	if(first < second){
+		return -1;
+	}
+	else if (first == second){
+		return 0;
+	}
+	return 1;
+}
+
+int wrapper (const void *a, const void *b){
+	return frobcmp(*(const char **)a, *(const char **) b);
+}
+
+void check_read_error(){
+	if(ferror(stdin))
+	{
+		fprintf(stderr, "I/O Error");
+		exit(1);
+	}
+}
+
+void check_word_mem_error(char *ptr){
+	if(ptr == NULL){
+		free(ptr);
+		fprintf(stderr, "(word) Memory Allocation Error");
+		exit(1);
+	}
+}
+
+void check_list_mem_error(char **ptr, int list_counter){
+	int i;
+	if(ptr == NULL){
+		for(i = 0; i < list_counter; i++){
+			free(ptr[i]);
+		}
+		free(ptr);
+		fprintf(stderr, "(list) Memory Allocation Error");
+		exit(1);
+	}
+}
+
+int main(int argc, char *argv[]){
+	char ** list;
+	char * word;
+	int i;      
+	word = (char *)malloc(sizeof(char));   // but we don't know the size of the string
+  	check_word_mem_error(word);
+  	list = (char**)malloc(sizeof(char*));  // solution: allocate a bit of memory and keep it growing 
+  	check_list_mem_error(list, 0);
+	char curr;
+	char temp;
+	int word_counter = 0;
+	int list_counter = 0;
+	curr = getchar();
+	check_read_error();
+	temp = curr;         	// temp trails curr with each iteration
+
+	while(curr != EOF){          // as long as the file hasn't ended
+		if(temp == ' ' && curr == ' '){     // skipping over white space
+			temp = curr;
+			curr = getchar();
+			check_read_error();
+			continue;
+		}
+		word[word_counter] = curr;
+		word_counter++;
+		if(curr != EOF){
+			word = realloc(word, (word_counter)*sizeof(char));  // increase mem. allocation for the word
+			check_word_mem_error(word);
+		}	
+		if(curr == ' '){           // reached the end of a word
+			list[list_counter]=word; 
+			list_counter++;
+			list = realloc(list, (list_counter)*sizeof(char*));  // increase mem. allocation for the list
+			check_list_mem_error(list, list_counter);
+			word_counter=0;          
+			word = NULL;
+			word = (char*)malloc(sizeof(char));   // reset the contents of 'word'
+			check_word_mem_error(word);	
+		}
+		temp = curr;
+		curr = getchar();
+		check_read_error();
+	}
+
+	if(temp != ' ' && word_counter > 0){         // appending a space if there is no space at the end
+		word = realloc(word, (word_counter)*sizeof(char));  // increase mem. allocation for the word
+		check_word_mem_error(word);
+		word[word_counter] = ' ';
+		word_counter++;
+		list[list_counter]=word;      // account for the last word in the array
+		list_counter++;
+		list = realloc(list, (list_counter)*sizeof(char*));  // increase mem. allocation for the list
+		check_list_mem_error(list, list_counter);
+	}
+				
+	qsort(list, list_counter, sizeof(char*), wrapper);   // sorting using qsort
+
+	for(i = 0; i < list_counter; i++){       // outputting all the elements
+		printf("%s", list[i]);
+	}
+	for(i = 0; i < list_counter; i++){       // freeing the list and all internal elements
+			free(list[i]);
+	}
+	free(list);
+}
+
+/*
+
+UNUSED CODE:
+	const char *word = "*{_CIA\030\031 ";
+	const char *word2 = "*`_GZY\v ";
+
+	int result = frobcmp(word, word2);
+	printf("%s", "\n");
+	printf("%d", result);
+
+	//printf("%s%c%s", "The value of temp is: ", temp, "\n");
+	//printf("%s%c%s", "The value of curr is: ", curr, "\n");
+	//printf("%s %d%s", "The size of list is:", list_counter, "\n");	
+*/

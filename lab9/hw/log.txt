@@ -1,0 +1,143 @@
+Assignment 9
+
+I will be working with Carter and Allan for the assignment.
+
+I checked that I had all the required openssh tools on my machine
+which were openssh-server and openssh-client. They are both parts of 
+OpenSSH which is a freely available version of the SSH protocol 
+family of tools for remotely controlling, or transferring files between, 
+computers.
+
+I used dpkg --get-selections | grep openssh to check I had both programs.
+dpkg, a package manager for Debian, was used to provide information about
+.deb packages in the system.
+
+I found I was missing openssh server and I used:
+sudo apt-get install openssh-server to install it
+
+I generated my public and private keys using: 
+ssh-keygen, which generates authentication keys
+I saved the file in the default path with no passphrase.
+
+Output:
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/jlin/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/jlin/.ssh/id_rsa.
+Your public key has been saved in /home/jlin/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:OqbSAWwUiy/YogmALqqoy5AF1DhV0rWw3XH4621o6u4 jlin@HP-Spectre-x360
+The key's randomart image is:
++---[RSA 2048]----+
+| .=+oo.. ...     |
+|o+.o..+ o.o      |
+|=oo  . o ..      |
+|+++        .     |
+|*o+.    S   .    |
+|=*  .  .   .     |
+|*  . .+   . o    |
+|= . .o .   + o   |
+|*o ..   +Eo .    |
++----[SHA256]-----+
+
+I then created an account for the client on the server and 
+specified the name and password:
+
+sudo useradd -d /home/carter -m carter
+sudo passwd carter
+Enter new UNIX password: carter
+Retype new UNIX password: carter
+
+Afterwards I created a .ssh directory for the new user
+cd /home/carter
+sudo mkdir .ssh
+
+I then changed ownership and permission on .ssh directory,
+which will grant access to Carter to log into the account
+sudo chown -R carter .ssh
+sudo chmod 700 .ssh
+
+Lastly, I disabled password-based authentication
+sudo emacs /etc/ssh/sshd_config
+And there I changed PasswordAuthentication option to no
+
+---------------------------------------------------------
+The next step is to connect to Allan's server as a client
+
+I generated a new public and private key to connect to the server
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/jlin/.ssh/id_rsa.
+Your public key has been saved in /home/jlin/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:l+Kuja/mCG5oImHe5O1Dwwo0f+LDlHFrlbti4udy9cM jlin@HP-Spectre-x360
+The key's randomart image is:
++---[RSA 2048]----+
+|                 |
+|                 |
+|        .        |
+| o . . o   .     |
+|. o = o S o      |
+|.o * B + o       |
+|ooX B o =        |
+|++.@ O.= E       |
+|+.o.@=B++ .      |
++----[SHA256]-----+
+
+I copied my public key to the server for key-based authentication 
+(~/.ssh/authorized_keys)
+ssh-copy-id -i jon@131.179.35.162
+
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/jlin/.ssh/id_rsa.pub"
+The authenticity of host '131.179.35.162 (131.179.35.162)' can't be established.
+ECDSA key fingerprint is SHA256:GlWvSnAw4wj6+PEWXApiQjsM7pwECTpUZVCyzW/Ck7k.
+Are you sure you want to continue connecting (yes/no)? yes
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+jon@131.179.35.162's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'jon@131.179.35.162'"
+and check to make sure that only the key(s) you wanted were added.
+
+During this process, the client is prompted with the public key of the server for manual host 
+verification and then the client can add his or her public key as one of the authorized keys for logging in.
+The host's public key is also stored in a client's known_hosts file for host validation. This is helpful
+in ensuring that the server's identity remains unchanged the next time the client sshs in.
+
+I then added the private key to the authentication agent, which eliminates the need
+to enter in a pass-phrase of the account. After entering in the pass-phrase once, the user
+will no longer be prompted for it again the next time logging in.
+
+ssh-add
+
+Identity added: /home/jlin/.ssh/id_rsa (/home/jlin/.ssh/id_rsa)
+
+Lastly I SSHed to server with the -X option to be able to run programs 
+that needed a GUI
+ssh -X jon@131.179.35.162
+
+Welcome to Ubuntu 14.04.5 LTS (GNU/Linux 4.4.0-45-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+New release '16.04.1 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+Your Hardware Enablement Stack (HWE) is supported until April 2019.
+*** System restart required ***
+Last login: Mon Nov 21 15:32:42 2016 from wifi-131-179-52-114.host.ucla.edu
+
+I tested $xterm, $firefox, and $gedit while connected.
+I used $gedit to create a text file in his machine and checked to see
+if it was there. It was there.
+
+---------------------------------------------
+
+While Carter was trying to connect to my server I ran:
+ifconfig
+This gave me information about my current network interface and my IP
+131.179.52.114, to which he ssh-ed using carter@131.179.52.114.

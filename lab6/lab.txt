@@ -1,0 +1,139 @@
+Lab 6:
+
+First I wrote tr2b.c, then tr2u.c
+Then I compiled the two files
+gcc tr2b.c -o tr2b
+gcc tr2u.c -o tr2u
+
+To test, I ran tr2b and tr2u with the input file:
+head --bytes=5000000 /dev/urandom > input.txt
+
+cat input.txt | ./tr2b 'asdf' 'safd' > withb.txt
+cat input.txt | ./tr2u 'asdf' 'safd' > withu.txt
+cat input.txt | tr 'asdf' 'safd' > orig.txt
+
+Using diff, I found all three files to produce identical output.
+diff withu.txt withb.txt
+diff withb.txt orig.txt
+diff orig.txt withu.txt, all 3 commands outputted nothing.
+
+Testing number of system calls with strace:
+head --bytes=6000000 /dev/urandom > tracetest.txt
+
+For tr2b:
+
+(a) When redirecting the output to a file:
+strace -c ./tr2b 'AB' 'XY' < tracetest.txt > tr2btest.txt
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 51.94    0.000308           3        92           write
+ 23.10    0.000137           1        94           read
+  8.43    0.000050           6         9           mmap
+  4.38    0.000026           7         4           mprotect
+  3.20    0.000019           5         4           fstat
+  2.36    0.000014           7         2           open
+  1.69    0.000010          10         1           munmap
+  1.35    0.000008           4         2           close
+  1.18    0.000007           7         1         1 access
+  1.01    0.000006           6         1           execve
+  0.67    0.000004           4         1           brk
+  0.67    0.000004           4         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000593                   212         1 total
+
+(b) When copying a file to the terminal:
+strace -c ./tr2b 'AB' 'XY' < tracetest.txt
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 98.15    0.024680           1     23793           write
+  1.22    0.000308           3        94           read
+  0.23    0.000059           7         9           mmap
+  0.10    0.000026           7         4           mprotect
+  0.07    0.000018           5         4           fstat
+  0.06    0.000015           8         2           open
+  0.04    0.000010          10         1           munmap
+  0.03    0.000007           4         2           close
+  0.03    0.000007           7         1         1 access
+  0.02    0.000006           6         1           execve
+  0.02    0.000004           4         1           brk
+  0.02    0.000004           4         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.025144                 23913         1 total
+
+Comparison: Outputting to a file uses the help of a buffer
+and library functions. Therefore it uses as few system calls
+as possible and uses only 212 in total. Outputting to a
+terminal instead uses more system calls, where most of them
+are called when outputting the final stdout to terminal. 
+
+For tr2u:
+
+(a) When redirecting the output to a file:
+strace -c ./tr2u 'AB' 'XY' < tracetest.txt > tr2utest.txt
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 55.48    6.958327           1   6000000           write
+ 44.49    5.580130           1   6000002           read
+  0.02    0.002873           1      2822           brk
+  0.00    0.000037           5         7           mmap
+  0.00    0.000026           7         4           mprotect
+  0.00    0.000014           7         2           open
+  0.00    0.000010          10         1           munmap
+  0.00    0.000007           4         2           fstat
+  0.00    0.000006           3         2           close
+  0.00    0.000006           6         1         1 access
+  0.00    0.000006           6         1           execve
+  0.00    0.000004           4         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   12.541446              12002845         1 total
+
+(b) When copying a file to the terminal:
+strace -c ./tr2u 'AB' 'XY' < tracetest.txt
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 57.58    8.125360           1   6000000           write
+ 42.40    5.982761           1   6000002           read
+  0.02    0.003002           1      2822           brk
+  0.00    0.000043           6         7           mmap
+  0.00    0.000028           7         4           mprotect
+  0.00    0.000015           8         2           open
+  0.00    0.000011          11         1           munmap
+  0.00    0.000008           4         2           close
+  0.00    0.000008           4         2           fstat
+  0.00    0.000008           8         1         1 access
+  0.00    0.000007           7         1           execve
+  0.00    0.000004           4         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   14.111255              12002845         1 total
+
+Comparison: Regardless of copying a file to the terminal 
+or copying it to a file, the time taken is comparatively
+equal and the number of system calls is equal as well. This
+is because tr2u uses an unbuffered I/O, which means every
+byte is read/writen by the kernel through a system call.
+Because of this, there are a same number of calls regardless
+of copying the file to another file or copying to terminal.
+
+Comparing between tr2u and tr2b:
+Regardless, tr2u used more system calls than tr2b whether
+the file was copied to terminal or if the file was copied
+to another file.
+
+4. Measuring how much faster one program is:
+time ./tr2u 'asdf' 'safd' < input.txt
+real	0m6.803s
+user	0m0.564s
+sys		0m6.183s
+
+time ./tr2b 'asdf' 'safd' < input.txt
+real	0m1.906s
+user	0m0.185s
+sys		0m0.069s
+
+From the output, I saw that tr2b which used library functions
+took a lot less real time to run than tr2u. It can be observed
+not only that the user time took longer, but also that most 
+of the overhead was the result of the system calls which
+took 6.183 seconds for the program that used system calls 
+(read and write) whereas 0.069 seconds only were taken for
+the program using getchar and putchar.

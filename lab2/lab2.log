@@ -1,0 +1,104 @@
+Command:
+sort < /usr/share/dict/words > ~/words
+
+Commands:
+man tr
+tr -c 'A-Za-z' '[\n*]' < assign2.txt > cmd1_test.txt
+Observations:
+The -c extension finds the complement of the first set.
+The command is equivalent to removing all characters that weren't
+upper or lowercase letters into new lines. The * is included
+as the size of the first set is not known.
+
+Command:
+man tr
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt > cmd2_test.txt
+Observations:
+-s stands for --squeeze-repeats, which replaces each input 
+sequence of a repeated character that is listed in SET1 
+with a single occurrence of that character. Thus, the 
+remaining list had no blank new lines.
+
+Command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort > cmd3_test.txt
+Observations:
+The C locale sorts in ASCII order. After running the command,
+the list sorted the words from A-Z and then a-z.
+
+Commands:
+man sort
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u > cmd3_test.txt
+Observations:
+-u for sort checks for strict ordering and removes duplicates.
+Having run the command, the list removed all duplicates of words.
+
+Command: 
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | 
+comm - words.txt > cmd5_test.txt
+Observations:
+The command compares the sorted, duplicates removed
+list of words from the assign2 website with the list 
+of words from the dictionary. The output will show 
+all three columns of words unique to each file
+and words common to both.
+
+Command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | 
+comm -23 - words.txt > cmd6_test.txt
+Observations:
+The output gives a list of words that are unique
+to the list from the website only and no words 
+that can be found from the dictionary list.
+
+For the spell-checker:
+
+I copied /usr/share/dict/words into words in my local directory.
+I then used wget to get hwnwdseng.htm in my local directory.
+Afterwards I wrote the script buildwords:
+                              
+#! /bin/sh                                                               
+grep '<td>' |   # takes out only the words from hwnwdseng.htm
+sed -n '1~2!p' |  # retains only the even lines
+sed 's/<td>//g; s/<\/td>//g' |  # removes the <td> tags
+sed 's/<u>//g; s/<\/u>//g' |    # removes the <u> tags
+tr '`' "'" |      # replaces the backticks with the single quotes
+tr ',' '\n' |     # replaces the commas with new lines
+tr ' ' '\n' |     # replaces the spaces with new lines
+sed '/^$/d' |  # removes all empty lines 
+sed '/[^pPkKmMnNwWlLhHaAeEiIoOuU'\'']/d' | 
+# removes all words that do not contain Hawaiian letters
+tr '[:upper:]' '[:lower:]' | # turn all uppercase letters -> lowercase
+sort -u      # sort all the remaining words
+
+When I used:
+cat hwnwdseng.htm | ./buildwords | wc -l
+I got 204 as the number of Hawaiian words.
+
+Modifying the shell command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | 
+tr '[:upper:]' '[:lower:]' | 
+sort -u | comm -23 - hwords | wc -l
+
+I found 405 misspelled words when comparing the
+assignment webpage against the Hawaiian spellchecker.
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | 
+tr '[:upper:]' '[:lower:]' | 
+sort -u | comm -23 - words_sorted | wc -l
+
+I found 38 misspelled words when comparing the 
+assignment webpage against the English spellchecker.
+
+tr -cs 'A-Za-z' '[\n*]' < hwords | 
+tr '[:upper:]' '[:lower:]' | 
+sort -u | comm -23 - hwords | wc -l
+
+I found 45 misspelled words when comparing the
+list hwords against the Hawaiian spellchecker.
+
+tr -cs 'A-Za-z' '[\n*]' < hwords | 
+tr '[:upper:]' '[:lower:]' | 
+sort -u | comm -23 - hwords | wc -l
+
+I found 128 misspelled words when comparing the
+list hwords against the English spellchecker.

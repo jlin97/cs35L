@@ -1,0 +1,113 @@
+1. git clone ~eggert/src/gnu/diffutils
+2. git log > git-log.txt
+3. git tag > git-tags.txt
+4. emacs git-log.txt
+C-x s, and searched for: like this
+Found the commit: 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f
+
+git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f > quote-patch.txt
+
+5. git checkout v3.0
+
+6. patch -p1 <quote-patch.txt
+I was prompted to enter files but I skipped them
+
+7. git status
+# HEAD detached at v3.0
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   NEWS
+#	modified:   README
+#	modified:   TODO
+#	modified:   doc/diagmeet.note
+#	modified:   ms/config.bat
+#	modified:   ms/config.site
+#	....
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	0001-maint-quote-like-this-or-like-this-not-like-this.patch
+#	0001-maint-update-copyright-year-bootstrap-init.sh.patch
+#	NEWS.orig
+#	README-hacking.orig
+#	README-hacking.rej
+#	README.orig
+#	README.rej
+#	...
+
+9. Using vc-revert I reverted most of the files that were not .c 
+files into their original states. For the .c files, I used vc-diff to find
+the changes that were made to the files and then replaced them using
+C-c C-a to revert the hunks that did not affect code output.
+
+10. cd src
+emacs *.c.rej
+I found that the *.c.rej contained diff outputs for diff.c and diff3.c.
+I replaced the edits with their original lines.
+
+11. I ran git clean -f and got the output:
+Removing NEWS.orig
+Removing README-hacking.orig
+Removing README-hacking.rej
+Removing README.orig
+Removing README.rej
+Removing cfg.mk.orig
+Removing cfg.mk.rej
+Removing ms/config.site.orig
+Removing quote-patch.txt
+Removing src/#diff.c.rej#
+Removing src/#system.h#
+Removing src/cmp.c.orig
+Removing src/context.c.orig
+Removing src/diff.c.orig
+Removing src/diff.c.rej
+Removing src/diff.h.orig
+Removing src/diff3.c.orig
+Removing src/diff3.c.rej
+Removing src/dir.c.orig
+Removing src/sdiff.c.orig
+Removing src/system.h.orig
+Removing src/util.c.orig
+Removing tests/help-version.orig
+
+12. Running git status, I found that there were 6 files being tracked.
+#	modified:   cmp.c
+#	modified:   diff.c
+#	modified:   diff3.c
+#	modified:   dir.c
+#	modified:   sdiff.c
+#	modified:   util.c
+git diff > quote-3.0-patch.txt
+cat quote-3.0-patch.txt | wc -l
+326
+
+I found that there were 326 changed lines for the remaining .c files.
+
+13. export PATH=/usr/local/cs/bin:$PATH
+./bootstrap
+./configure
+make
+make check
+
+cd src 
+./diff . -
+Output: ./diff: cannot compare '-' to a directory
+./diff --help
+Sample output:
+FILES are 'FILE1 FILE2' or 'DIR1 DIR2' or 'DIR FILE...' or 'FILE... DIR'.
+If --from-file or --to-file is given, there are no restrictions on FILES.
+If a FILE is '-', read standard input.
+Exit status is 0 if inputs are the same, 1 if different, 2 if trouble.
+
+14. I copied the relevant src files into diffutils-3.0-patch and the
+relevant original src files into diffutils-3.0
+Then I ran:
+diff -pru diffutils-3.0 diffutils-3.0-patch >quote-3.0-test.txt
+
+15. I ran: diff quote-3.0-test.txt quote-3.0-patch.txt > q15.txt
+Based on my output, I observed the file contained changes in code
+but the changes were in the characters strings. The changes altered
+program output and therefore they are not innocuous.

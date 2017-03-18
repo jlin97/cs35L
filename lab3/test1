@@ -1,0 +1,329 @@
+	1. I use wget in order to download Coreutils 7.6
+Q1. Why did Brady's patch remove the line "case_long_iso_time_
+style:"? Was it necessary to remove that line? Explain.
+
+mv ls.c ls_new.c    # rename patched file
+mv ls.c.orig ls.c    # restore buggy source code
+cp changes changes2    # create new patch file
+emacs changes2      # I remove the removal of the "case_long..." file
+cd ..
+make
+cd src
+./ls -l
+
+First lines of output:
+total 29648
+-rwxr-xr-x 1 nyan csugrad 127218 Oct 10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 Oct 10 14:45 base64
+-rw-r--r-- 1 nyan csugrad   8422 Sep  1  2009 base64.c
+-rw-r--r-- 1 nyan csugrad  38168 Oct 10 14:45 base64.o
+-rwxr-xr-x 1 nyan csugrad  88592 Oct 10 14:45 basename
+-rw-r--r-- 1 nyan csugrad   3787 Sep  1  2009 basename.c
+-rw-r--r-- 1 nyan csugrad  18088 Oct 10 14:45 basename.o
+-rw-r--r-- 1 nyan csugrad   5290 Sep  1  2009 c99-to-c89.diff
+-rwxr-xr-x 1 nyan csugrad 201758 Oct 10 14:45 cat
+-rw-r--r-- 1 nyan csugrad  22679 Sep  1  2009 cat.c
+-rw-r--r-- 1 nyan csugrad  63144 Oct 10 14:45 cat.o
+-rw-r--r-- 1 nyan csugrad    962 Oct 11 00:10 changes
+
+The patch still works without removing that line. This is because
+the removal was not to fix the bug but to clean up messy code. It
+was removing a duplicate line of code.
+
+Q2. If your company adopts this patched version of Coreutils
+instead of the default one, what else should you watch out 
+for? Might this new version of Coreutils introduce other problems 
+	wget https://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz
+	
+	2. I unzip and extract the file
+	tar -xzvf coreutils-7.6.tar.gz
+	
+	3. I make a new directory
+	mkdir coreutilsInstall
+	
+	4. I install the program using 
+	./configure prefix=~/coreutilsInstall	
+	make
+	
+	The output
+	make  all-recursive
+	make[1]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6'
+	Making all in lib
+	make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/lib'
+	  GEN    configmake.h
+	make  all-recursive
+	...
+	make  all-am
+	make[3]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+	  CC     version.o
+	  AR     libver.a
+	  CC     uname.o
+	  CCLD   uname
+	  CC     chroot.o
+	  CCLD   chroot
+	  CC     hostid.o
+	  ...
+	
+	Observations about make:
+	I notice that all the directories within coreutils-7.6 are recursively
+	entered and left, and all the executable files that should be made
+	are created after entering src where all the source code files are.
+	The CC and CCLD stands for compiling C programs, AR stands 
+	archive-maintaining program.
+	
+	make install
+	The prefix is used to install in a separate directory
+	rather than the system directory
+	
+	5. I get a new folder 'coreutilsInstall'
+	and I move into that directory
+	cd coreutilsInstall
+	
+	6. I find ls in /bin and I run it
+	./ls -l 
+	
+	I get this output:
+	total 29488
+	-rwxr-xr-x 1 nyan csugrad 127218 2016-10-10 14:45 [
+	-rwxr-xr-x 1 nyan csugrad 119457 2016-10-10 14:45 base64
+	-rwxr-xr-x 1 nyan csugrad  88592 2016-10-10 14:45 basename
+	-rwxr-xr-x 1 nyan csugrad 201758 2016-10-10 14:45 cat
+	-rwxr-xr-x 1 nyan csugrad 237435 2016-10-10 14:45 chcon
+	which is a buggy output of ls
+	
+	7. I also remember to check my locale:
+	LANG=en_US.UTF-8
+	LC_CTYPE="en_US.UTF-8"
+	LC_NUMERIC="en_US.UTF-8"
+	LC_TIME="en_US.UTF-8"
+	LC_COLLATE="en_US.UTF-8"
+	...
+	I find I am on the right locale
+	
+	8. I create the patch called 'changes'
+	touch changes
+	emacs changes
+	I paste in Brady's patch, save and exit
+	
+	9. I move the patch to ~/coreutils-7.6/src
+	and run the patch
+	mv changes ~/coreutils-7.6/src
+	patch -p2 <changes
+	
+	I get this output:
+	patching file ls.c
+	Hunk #1 succeeded at 2013 (offset -1 lines).
+	Hunk #2 succeeded at 2029 with fuzz 1 (offset -1 lines).
+	
+	10. I remake at the top level of my source tree
+	cd ..
+	make
+	and get:
+	
+	make  all-recursive
+	make[1]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6'
+	Making all in lib
+	make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/lib
+	...
+	make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+	make  all-am
+	make[3]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+	  CC     ls.o
+	  CCLD   dir
+	  CCLD   vdir
+	  CCLD   ls
+	make[3]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+	make[2]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/src'
+	Making all in doc
+	...
+	make[2]: Entering directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/man'
+	  GEN    dir.1
+	  GEN    vdir.1
+	  GEN    ls.1
+	make[2]: Leaving directory `/w/home.06/cs/ugrad/nyan/coreutils-7.6/man'
+	...
+	
+	Observations of the second make:
+	I find that this make runs gcc on only the few files that are changed, ls 
+	and dir. This includes much fewer commands than the first make because 
+	only ls.c was actually patched. For dir, I check the man page of dir
+	to find that it lists directory contents, which potentially imports
+	ls in order to work. The remainder of the output mostly shows a 
+	recursive entering and leaving of all the directories inside coreutils-7.6.
+	
+	Differences:
+	The second make was much shorter because only ls.c was changed through 
+	the patch, and consequently only ls and the executables that imported 
+	ls had to be recompiled as well.
+	
+	11. I test if the patch now works
+	cd src
+	./ls -l    # directory: ~/coreutils-7.6/src
+	
+	I get this output:
+	total 29488
+	-rwxr-xr-x 1 nyan csugrad 127218 Oct 10 14:45 [
+	-rwxr-xr-x 1 nyan csugrad 119457 Oct 10 14:45 base64
+	-rw-r--r-- 1 nyan csugrad   8422 Sep  1  2009 base64.c
+	-rw-r--r-- 1 nyan csugrad  38168 Oct 10 14:45 base64.o
+	-rwxr-xr-x 1 nyan csugrad  88592 Oct 10 14:45 basename
+	-rw-r--r-- 1 nyan csugrad   3787 Sep  1  2009 basename.c
+	-rw-r--r-- 1 nyan csugrad  18088 Oct 10 14:45 basename.o
+	-rw-r--r-- 1 nyan csugrad   5290 Sep  1  2009 c99-to-c89.diff
+	-rwxr-xr-x 1 nyan csugrad 201758 Oct 10 14:45 cat
+	-rw-r--r-- 1 nyan csugrad  22679 Sep  1  2009 cat.c
+	-rw-r--r-- 1 nyan csugrad  63144 Oct 10 14:45 cat.o
+	-rw-r--r-- 1 nyan csugrad    962 Oct 10 15:46 changes
+	-rw-r--r-- 1 nyan csugrad    961 Oct 10 15:33 changes~
+	-rwxr-xr-x 1 nyan csugrad 237435 Oct 10 14:45 chcon
+	-rw-r--r-- 1 nyan csugrad  15766 Sep 10  2009 chcon.c
+	
+	Testing with recent and old files
+	Fixed ls executable:
+	
+	touch -t 1401010000 oldfile
+	touch newfile
+	./ls -l    # directory: ~/coreutils-7.6/src
+	-rw-r--r-- 1 nyan csugrad      0 Oct 10 23:25 newfile
+	...
+	-rw-r--r-- 1 nyan csugrad      0 Jan  1  2014 oldfile
+	
+	Buggy ls executable:
+	touch -t 1401010000 oldfile
+	touch newfile
+	./ls -l    # directory: ~/coreUtilsInstall/bin
+	-rw-r--r-- 1 nyan csugrad      0 2016-10-10 23:28 newfile
+	...
+	-rw-r--r-- 1 nyan csugrad      0 2014-01-01 00:00 oldfile
+	
+	Differences: With the fixed ls file the hour and min
+	of the file is not visibly evident whereas it is for
+	the buggy ls file.
+	
+with your application, perhaps in countries where users don't 
+speak English and don't understand English-format dates?
+
+To test this, I change the locale to one with language French.
+export LC_ALL=fr_FR.UTF-8
+
+When testing with the patched ls file:
+./ls -l      # in directory ~/coreutils-7.6/src
+I get the output:
+total 29648
+-rwxr-xr-x 1 nyan csugrad 127218 oct.  10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 oct.  10 14:45 base64
+-rw-r--r-- 1 nyan csugrad   8422 sept.  1  2009 base64.c
+-rw-r--r-- 1 nyan csugrad  38168 oct.  10 14:45 base64.o
+-rwxr-xr-x 1 nyan csugrad  88592 oct.  10 14:45 basename
+-rw-r--r-- 1 nyan csugrad   3787 sept.  1  2009 basename.c
+-rw-r--r-- 1 nyan csugrad  18088 oct.  10 14:45 basename.o
+-rw-r--r-- 1 nyan csugrad   5290 sept.  1  2009 c99-to-c89.diff
+-rwxr-xr-x 1 nyan csugrad 201758 oct.  10 14:45 cat
+-rw-r--r-- 1 nyan csugrad  22679 sept.  1  2009 cat.c
+-rw-r--r-- 1 nyan csugrad  63144 oct.  10 14:45 cat.o
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:10 changes
+-rw-r--r-- 1 nyan csugrad    963 oct.  11 00:09 #changes#
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:09 changes~
+-rw-r--r-- 1 nyan csugrad    707 oct.  11 00:11 changes2
+-rw-r--r-- 1 nyan csugrad    962 oct.  11 00:10 changes2~
+
+When testing with the buggy ls file:
+./ls -l      # in directory ~/coreutilsInstall/bin
+
+total 19208
+-rwxr-xr-x 1 nyan csugrad 127218 oct.  10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 oct.  10 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 oct.  10 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 oct.  10 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 oct.  10 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 oct.  10 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 oct.  10 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 oct.  10 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 oct.  10 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 oct.  10 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 oct.  10 14:45 comm
+
+And testing in a German locale:
+export LC_ALL=de_DE.UTF-8
+insgesamt 19208
+-rwxr-xr-x 1 nyan csugrad 127218 10. Okt 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 10. Okt 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 10. Okt 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 10. Okt 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 10. Okt 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 10. Okt 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 10. Okt 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 10. Okt 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 10. Okt 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 10. Okt 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 10. Okt 14:45 comm
+
+I find that the bug only exists in the English (US)
+locale. Reverting back,
+export LC_ALL=en_US.UTF-8
+./ls -l      # in directory ~/coreutilsInstall/bin
+
+total 19208
+-rwxr-xr-x 1 nyan csugrad 127218 2016-10-10 14:45 [
+-rwxr-xr-x 1 nyan csugrad 119457 2016-10-10 14:45 base64
+-rwxr-xr-x 1 nyan csugrad  88592 2016-10-10 14:45 basename
+-rwxr-xr-x 1 nyan csugrad 201758 2016-10-10 14:45 cat
+-rwxr-xr-x 1 nyan csugrad 237435 2016-10-10 14:45 chcon
+-rwxr-xr-x 1 nyan csugrad 226231 2016-10-10 14:45 chgrp
+-rwxr-xr-x 1 nyan csugrad 215399 2016-10-10 14:45 chmod
+-rwxr-xr-x 1 nyan csugrad 237779 2016-10-10 14:45 chown
+-rwxr-xr-x 1 nyan csugrad 118446 2016-10-10 14:45 chroot
+-rwxr-xr-x 1 nyan csugrad  94361 2016-10-10 14:45 cksum
+-rwxr-xr-x 1 nyan csugrad 111168 2016-10-10 14:45 comm
+
+I find the bug reappears again. I find that by applying
+this patch, this format will stick no matter the locale,
+which may be a problem if other locales have other
+distinct initial formats. Thus, even if other countries
+don't understand English-format dates, using the ls
+from the patched file will give them the fixed format
+of the patched ls meant for the English locale.
+
+Q3. What happens when this script is invoked on an empty 
+file like /dev/null, and why?
+
+When invoked on an empty file,
+Traceback (most recent call last):
+  File "./randline.py", line 70, in <module>
+    main()
+  File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/lib64/python2.7/random.py", line 274, in choice
+    return seq[int(self.random() * len(seq))]  # raises IndexError if seq is empty
+IndexError: list index out of range
+
+This error pops up because the function calls lead to 
+an index error that is caused because seq which is supposed
+to print a sequence of numbers is empty. Thus, when
+the script is invoked on an empty file the command does not
+execute successfully.
+
+Q4. What happens when this script is invoked with Python 3 
+rather than Python 2, and why? (You can run Python 3 on the 
+SEASnet hosts by using the command python3 instead of python.)
+
+By running Python 3, 
+alias python3='/usr/local/cs/bin/python3'
+python3 randline.py lsoutput.txt
+  File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+There is an error running this script because the code 
+relies on the fact that exceptions are iterable and that
+you can iterate over the parameters by iterating over the
+exception. In older versions of Python, it is possible to 
+concatenate the tuples together to provide a single argument.
+In Python 3 this rule has been removed and therefore the
+interpreter no longer supports mulitple tuple unpacking.
+A possible fix would be:
+except IOError as e:
+       erno, strerror = e.args

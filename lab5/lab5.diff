@@ -1,0 +1,28 @@
+diff -ru test1/lib/timespec.h test2/lib/timespec.h
+--- test1/lib/timespec.h	2016-10-25 00:30:20.658242000 -0700
++++ test2/lib/timespec.h	2016-10-25 00:29:49.285952000 -0700
+@@ -45,8 +45,22 @@
+ static inline int
+ timespec_cmp (struct timespec a, struct timespec b)
+ {
+-  int diff = a.tv_sec - b.tv_sec;
+-  return diff ? diff : a.tv_nsec - b.tv_nsec;
++  int diff;
++  if(a.tv_sec < b.tv_sec){
++    diff = -1;
++  }
++  else if(a.tv_sec == b.tv_sec){
++    if(a.tv_nsec < b.tv_nsec)
++      diff = -1;
++    else if(a.tv_nsec == b.tv_nsec)
++      diff = 0;
++    else
++      diff = 1;
++  }
++  else{
++    diff = 1;
++  }
++  return diff;
+ }
+ 
+ # if ! HAVE_DECL_NANOSLEEP

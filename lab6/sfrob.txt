@@ -1,0 +1,193 @@
+I rewrote sfrob.c into sfrobu.c where all library functions were
+replaced by system calls. I added a line for outputting
+the number of comparisons to stderr.
+
+After compiling I tested with:
+/proc/self/maps and /usr/local/cs/jdk*/jre/lib/rt.jar
+
+I ran:
+/usr/local/cs/jdk*/jre/lib/rt.jar | ./sfrobu
+
+I saw this number of comparisons:
+Comparisons: 9437807
+
+Comparing sfrob and sfrobu:
+
+Small number of comparisons:
+time printf 'hey hi hello' | ./sfrob
+hi hello hey 
+real	0m0.002s
+user	0m0.001s
+sys		0m0.001s
+
+time printf 'hey hi hello' | ./sfrobu
+hi hello hey Comparisons: 3
+real	0m0.001s
+user	0m0.001s
+sys		0m0.001s
+
+Comparatively for very few words, the real time did not differ
+by too much.
+
+Around 1000 bytes:
+head --bytes=1000 /dev/urandom > 1000b.txt
+time ./sfrobu < 1000b.txt
+
+Comparisons: 9
+real	0m0.018s
+user	0m0.000s
+sys		0m0.003s
+
+time ./sfrob < 1000b.txt
+real	0m0.002s
+user	0m0.000s
+sys		0m0.001s
+
+Around 10000 bytes:
+head --bytes=10000 /dev/urandom > 10000b.txt
+time ./sfrobu < 10000b.txt
+
+Comparisons: 177
+real	0m0.013s
+user	0m0.002s
+sys		0m0.010s
+
+time ./sfrob < 10000b.txt
+real	0m0.017s
+user	0m0.000s
+sys		0m0.002s
+
+The discrepancy for sys time began starting to be more apparent.
+
+Around 1000000 bytes:
+head --bytes=100000 /dev/urandom > 100000b.txt
+time ./sfrobu < 100000b.txt
+
+Comparisons: 2895
+real	0m0.116s
+user	0m0.005s
+sys		0m0.109s
+
+time ./sfrob < 100000b.txt
+real	0m0.009s
+user	0m0.005s
+sys		0m0.002s
+
+Around 500000 bytes:
+time ./sfrobu < 500000b.txt
+
+Comparisons: 18454
+real	0m0.690s
+user	0m0.031s
+sys		0m0.598s
+
+time ./sfrob < 500000b.txt	
+real	0m0.033s
+user	0m0.028s
+sys		0m0.002s
+
+Around 1000000 bytes:
+time ./sfrobu < 1000000b.txt
+
+Comparisons: 40301
+real	0m1.368s
+user	0m0.086s
+sys		0m1.256s
+
+time ./sfrob < 1000000b.txt	
+real	0m0.063s
+user	0m0.049s
+sys		0m0.009s
+
+There is a clear disparity of sys time between sfrobu and sfrob.
+
+Around 5000000 bytes:
+time ./sfrobu < 5000000b.txt
+
+Comparisons: 253165
+real	0m5.559s
+user	0m0.323s
+sys		0m5.190s
+
+time ./sfrob < 5000000b.txt	
+real	0m0.701s
+user	0m0.256s
+sys		0m0.036s
+
+For the large rt.jar file:
+time cat /usr/local/cs/jdk*/jre/lib/rt.jar | ./sfrobu
+Comparisons: 9437807
+real	2m40.619s
+user	0m12.582s
+sys		2m26.865s
+
+time cat /usr/local/cs/jdk*/jre/lib/rt.jar | ./sfrob
+real	0m9.040s
+user	0m7.317s
+sys		0m0.394s
+
+It was apparent that sfrobu took a lot longer as it 
+was calling a lot more system calls than sfrob. This is
+because library calls merely invoke a subroutine linked 
+into the program whereas system calls have to transfer
+control to the kernel so the system can perform
+the required function. This context switch involves
+a lot more overhead than calling a library function.	
+
+Estimated function for the number of comparisons to number of input lines:
+
+# of Lines         # of Comparisons
+1000               9
+10000              177
+100000             2875
+500000             18454
+1000000            40301
+5000000            253165
+
+Graphing the points, it resembled the linear function:
+y = 0.051x-3744.03
+The multiple R value was 0.9999 and the R square 
+value was 0.998 which meant the function was highly linear.
+
+For the script the corresponding times were:
+
+time ./sfrobs < 1000b.txt
+real	0m0.007s
+user	0m0.002s
+sys		0m0.006s
+
+time ./sfrobs < 10000b.txt
+real	0m0.008s
+user	0m0.000s
+sys		0m0.008s
+
+time ./sfrobs < 100000b.txt
+real	0m0.008s
+user	0m0.004s
+sys		0m0.007s
+
+time ./sfrobs < 500000b.txt
+real	0m0.027s
+user	0m0.018s
+sys		0m0.012s
+
+time ./sfrobs < 1000000b.txt
+real	0m0.056s
+user	0m0.034s
+sys		0m0.024s
+
+time ./sfrobs < 5000000b.txt
+real	0m1.300s
+user	0m0.232s
+sys		0m0.085s
+
+Comparisons:
+Initially the time sfrobs wasn't too off from
+that of sfrob but sfrobs was faster than sfrobu.
+Regardless, with an input file with 5000000 bytes,
+sfrobs took significantly longer than sfrob but
+was still faster than sfrobu. Most of the overhead
+was in real time which could possibly be because
+the script was running in bash, an intepreted langage.
+The script also involves piping through multiple
+commands which may cause delays during execution.

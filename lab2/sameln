@@ -1,0 +1,62 @@
+#!/bin/bash
+
+dir=$1
+RESULT=`find $dir -maxdepth 1 -type f -printf "%f\n" | sort` 
+#find all the regular files
+
+IFS=$'\n'
+
+declare -a ARRAY
+declare -a ARR_SORTED
+
+ARRAY=( $(echo "$RESULT"))
+#store them in the array, separating indices by \n
+
+let index=0
+
+#give precedence to files beginning with a dot
+for i in ${ARRAY[@]}
+do
+    if [[ $i == .* ]]
+    then
+	ARR_SORTED[index]=$i
+	let index=index+1
+    fi
+done
+
+for i in ${ARRAY[@]}
+do
+    if [[ ! $i == .* ]]
+    then
+	ARR_SORTED[index]=$i
+	let index=index+1
+    fi
+done
+
+let count=0
+for i in ${ARR_SORTED[@]}
+do
+    let count=count+1
+    	for (( j=count; j < ${#ARR_SORTED[@]} ; j=$j+1 ));
+	    do
+	    	#find duplicates for each element
+			cmp -s $dir/$i $dir/${ARR_SORTED[j]}
+	    		if [ $? -eq 0 ]  
+	    		then
+					#save name and delete duplicate
+					temp=${ARR_SORTED[j]}
+					rm $dir/${ARR_SORTED[j]}
+					ln $dir/$i $dir/$temp
+	    		fi
+		done
+done
+   
+
+#UNUSED CODE
+
+#RESULT="$(ls -a -l  $dir | grep '^-')"
+
+#for i in ${ARR_SORTED[@]}
+#do
+#    echo $i
+#done

@@ -1,0 +1,160 @@
+1. 
+man man (After accessing the manual page for 'man', I 
+found -k and -K to search for words in manual pages)
+man -k remove (I tested out -k with the word 'remove'. 
+The command worked and listed out the manual pages that 
+had the word 'remove' in their descriptions)
+man -K remove (I then tested out -K with the same word. The 
+command showed me sequentially the manual pages that had the 
+word 'remove' and prompted me on whether I wanted to view 
+each manual page individually)
+
+2. 
+whereis -b cp (The whereis command gave me the 
+locations of the cp and wc commands)
+cp: /usr/bin/cp
+whereis -b wc
+wc: /usr/bin/wc
+
+3. 
+find -name '?' -executable (I searched the 'find' manual 
+page to find -name pattern and -executable)
+I searched in /usr/bin and got:
+.
+./w
+./[
+./X
+When I searched up the manual pages of the executables,
+I found that 'w', shows who is logged in and what they are doing,
+'X', is a portable, network-transparent window system, and
+'[', is a test command for if cases.
+
+4. 
+readlink /usr/bin/emacs (I followed the symbolic link 
+using readlink and got to a different directory)
+/etc/alternatives/emacs 
+
+readlink /etc/alternatives/emacs (I followed this link 
+to see another directory)
+/usr/bin/emacs-24.3
+
+5. 	
+man chmod (I followed the manual page of 'chmod' to 
+understand how to change modes)
+g+s grants access to the executable during execution 
+as the owner/group of the file instead of the user running 
+the executable file. All new files/sub-directories will 
+inherit the groupID of the directory rather than 
+the groupID of the owner.
+o-x grants users that are neither the owner of the file or members 
+of the file's group the permission to execute the file
+
+6. 
+man find (I read the manual page of 'find' to find -mtime)
+find -mtime -21 | head -n 5 (I typed 21 to get all files 
+that had been modified in the past 21 days)
+My output was:
+.
+./Desktop
+./Desktop/desktop.ini
+./Desktop/Google Chrome.lnk
+./Desktop/asdf.txt
+
+7.
+find -mtime -21 -type d | head -n 5 (I combined the previous 
+answer with the -type d to get only directories)
+My output was:
+.
+./Desktop
+./Documents
+./Downloads
+./.cache/abrt
+
+8. 
+whereis -b find
+find: /usr/bin/find
+
+cd /usr/bin
+find -type l | wc -l (I went into the directory that find 
+was in and searched for the new lines of symbolic links)
+242
+
+9.
+cd /usr/lib
+find -type f -printf '%A+\t%f\n' | sort | head -n 20
+2007-11-30+21:00:00.0000000000	local_policy.jar
+2007-11-30+21:00:00.0000000000	local_policy.jar.rpmnew
+2007-11-30+21:00:00.0000000000	local_policy.jar.rpmnew
+2007-11-30+21:00:00.0000000000	US_export_policy.jar
+2007-11-30+21:00:00.0000000000	US_export_policy.jar.rpmnew
+2007-11-30+21:00:00.0000000000	US_export_policy.jar.rpmnew
+2008-06-02+23:47:27.0000000000	accessibility.properties
+2013-09-12+05:52:20.0000000000	10-console.rules
+2013-09-12+05:52:20.0000000000	11-dm.rules
+2013-09-12+05:52:20.0000000000	59-persistent-storage-dm.rules
+2013-09-12+05:52:20.0000000000	64-lvm.rules
+2013-09-12+05:52:20.0000000000	65-md-incremental-imsm.rules
+2013-09-12+05:52:20.0000000000	80-btrfs.rules
+2013-09-12+05:52:20.0000000000	apply-live-updates.sh
+2013-09-12+05:52:20.0000000000	block-genrules.sh
+2013-09-12+05:52:20.0000000000	btrfs_device_ready.sh
+2013-09-12+05:52:20.0000000000	btrfs_finished.sh
+2013-09-12+05:52:20.0000000000	btrfs_timeout.sh
+2013-09-12+05:52:20.0000000000	cifs-lib.sh
+2013-09-12+05:52:20.0000000000	cifsroot.sh
+
+10. man localedef
+locale gets its data from the localedef utility
+which converts source definitions for locale
+categories into a format usable by the functions
+and utilities whose operational behavior
+is determined by the setting of the locale environment
+variables defined in the Base Definitions 
+volume of IEEE Std 1003.1-2001, Chapter 7, Locale.
+The localedef program reads the indicated charmap 
+and input files, compiles them to a form usable 
+by the locale functions in the C library, and places the 
+output files in the outputpath directory.
+
+11. 
+Emacs manual C-h r C-s until I reached sorting section
+The commands I found with sort in their names were:
+M-x sort-lines
+M-x sort-paragraphs
+M-x sort-pages
+M-x sort-fields
+M-x sort-numeric-fields
+M-x sort-columns
+M-x sort-lines
+
+12.
+C-M-a runs the command beginning-of-defun.
+C-M-e runs the command end-of-defun.
+C-M-h runs the command mark-defun, which puts
+a region around the current or following defun.
+
+The other commands do not have a specified function.
+
+13.
+C-g runs the command keyboard-quit, which 
+quits or aborts a partially typed command.
+
+14.
+After killing text, it can be reinserted, and 
+this act is called "yanking" or "pulling back" the 
+text that was taken away.
+
+15.
+I used diff on two outputs of dired and ls -l
+in /usr/lib and got that they provided similar information
+but in different formats, and dired showed more files:
+dr-xr-xr-x. 50 root root    4096 Aug  3 15:08 .
+drwxr-xr-x. 15 root root    4096 Dec 22  2015 ..
+drwxr-xr-x.  3 root root    4096 Dec 12  2014 alsa
+drwxr-xr-x.  2 root root    4096 Aug  3 15:08 audit
+drwxr-xr-x.  2 root root    4096 Jun 14 06:36 binfmt.d
+and additional information at the top:
+total used in directory 4176 available 13963040
+
+dired emulates ls -l on MS-Windows and MS-DOS systems
+but has pecularities as dired in emacs is run in Lisp.

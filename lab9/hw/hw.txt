@@ -1,0 +1,36 @@
+1. Suppose the other teams really had been observing all the bytes going across the network. Is 
+your resulting network still secure? If so, explain why, and explain whether your answer would 
+change if (1) you assumed the other teams had also tapped your keyboards and had observed all of 
+your team's keystrokes, or (2) you are booting off USB and you assume the other teams temporarily 
+had physical control of the USB. If not, explain any weaknesses of your team's setups, focusing 
+on possible attacks by such outside observers.
+
+(1) If all the other team had been observing all the bytes going across the network, my resulting network would no longer be secure. They would have the key fingerprint of the generated public key 
+for the server in ASCII format. They would be able to add a file of known_hosts including the public 
+key of the server. This would bypass host validation. They would also know the user of the account 
+created for the client and would be able to ssh as the client using any new public key; all this third 
+party has to do is copy their public key to the server as one of the authorized keys, and enter the 
+pass-phrase of the account key when prompted.
+
+(2) If other teams temporarily had physical control of the USB, they could get access to my .ssh 
+folder which would mean that they would be able to view my list of authorized keys. They could add 
+their own account in the server and manually add their public key corresponding to the account into 
+this list. This method is easily noticable but if the outside observers are fast enough, they could 
+make a serious impact.
+
+2. Explain why the gpg --verify command in the following instructions doesn't really verify that you personally created the tar file in question. How would you go about fixing this problem?
+
+The gpg --verify command doesn't really verify that the file was sent from the original sender. This 
+is because the gpg --verify command uses the corresponding public key of the private key used for the 
+digital signature, in order to check that the file had not been modified since it had been sent. An  
+outside observer could modify the file and then overwrite the signature with his/her own. Then this 
+tampered file could be sent to the intended recipient and while running the --verify command, no 
+errors would be recognized. This is due to the fact that the public key sent to the recipient 
+corresponds to the private key used to sign the file. Therefore, in such cases it may not be solely 
+adequate to use the gpg --verify command to check if the original file remains completely untouched.
+
+A possible solution may to receive assistance from a third party in order to keep track of the 
+identity of the sender. In a lot of cases Certificate Authority (CA) is used because it issues 
+signatures that contain not only the public key but also the identity of the owner. Thus, if the 
+signature were changed with a new one, the recipient would see that the signature had been issued by a 
+different individual than the original sender.

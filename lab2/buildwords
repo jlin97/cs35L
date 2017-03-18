@@ -1,0 +1,13 @@
+#! /bin/sh
+grep '<td>' |
+sed -n '1~2!p' |
+sed 's/<td>//g; s/<\/td>//g' | 
+sed 's/<u>//g; s/<\/u>//g' |
+tr '`' "'" |
+tr ',' '\n' |
+tr ' ' '\n' |
+sed '/^$/d' |
+tr '[:upper:]' '[:lower:]' |
+sed '/[^pPkKmMnNwWlLhHaAeEiIoOuU'\'']/d' |
+sort -u
+
